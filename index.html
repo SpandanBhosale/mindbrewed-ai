@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MindBrewed AI Assistant ☕</title>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background:#f5f6fa; color:#2f3640; margin:0; padding:20px; }
+    #chat-box { border:1px solid #ccc; border-radius:12px; background:#fff; padding:20px; max-width:600px; margin:auto; height:400px; overflow-y:auto; }
+    .user, .bot { margin:10px 0; padding:10px; border-radius:8px; }
+    .user { background:#dcd6f7; text-align:right; }
+    .bot { background:#e0f7fa; text-align:left; }
+    #input-box { display:flex; justify-content:center; margin-top:20px; }
+    input { width:70%; padding:10px; border-radius:8px; border:1px solid #ccc; }
+    button { background:#6c5ce7; color:#fff; border:none; border-radius:8px; padding:10px 15px; margin-left:8px; cursor:pointer; }
+    button:hover { background:#4834d4; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">MindBrewed AI Assistant ☕</h1>
+  <div id="chat-box"></div>
+  <div id="input-box">
+    <input id="user-input" placeholder="Ask me anything..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const chatBox = document.getElementById("chat-box");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      chatBox.innerHTML += `<div class="user">${userText}</div>`;
+      input.value = "";
+      chatBox.innerHTML += `<div class="bot"><i>Thinking...</i></div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText })
+        });
+
+        if (!res.ok) throw new Error("Server not responding.");
+
+        const data = await res.json();
+        document.querySelectorAll(".bot")[document.querySelectorAll(".bot").length - 1].innerHTML = data.reply;
+
+      } catch (e) {
+        document.querySelectorAll(".bot")[document.querySelectorAll(".bot").length - 1].innerHTML = "💀 " + e.message;
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
