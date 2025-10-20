@@ -23,36 +23,29 @@
     <button onclick="sendMessage()">Send</button>
   </div>
 
+  <script src="chat.js"></script>
   <script>
-    async function sendMessage() {
-      const input = document.getElementById("user-input");
-      const chatBox = document.getElementById("chat-box");
-      const userText = input.value.trim();
-      if (!userText) return;
+async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const chatBox = document.getElementById("chat-box");
+  const userText = input.value.trim();
+  if (!userText) return;
 
-      chatBox.innerHTML += `<div class="user">${userText}</div>`;
-      input.value = "";
-      chatBox.innerHTML += `<div class="bot"><i>Thinking...</i></div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
+  chatBox.innerHTML += `<div class="user">${userText}</div>`;
+  input.value = "";
+  chatBox.innerHTML += `<div class="bot"><i>Thinking...</i></div>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
 
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userText })
-        });
+  try {
+    const reply = await getAIReply(userText); // from chat.js
+    document.querySelectorAll(".bot")[document.querySelectorAll(".bot").length - 1].innerHTML = reply;
+  } catch (e) {
+    document.querySelectorAll(".bot")[document.querySelectorAll(".bot").length - 1].innerHTML = "💀 " + e.message;
+  }
 
-        if (!res.ok) throw new Error("Server not responding.");
-
-        const data = await res.json();
-        document.querySelectorAll(".bot")[document.querySelectorAll(".bot").length - 1].innerHTML = data.reply;
-
-      } catch (e) {
-        document.querySelectorAll(".bot")[document.querySelectorAll(".bot").length - 1].innerHTML = "💀 " + e.message;
-      }
-
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
   </script>
 </body>
 </html>
+
